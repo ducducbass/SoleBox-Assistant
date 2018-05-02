@@ -7,6 +7,7 @@ var open = require("open");
 var schedule = require('node-schedule');
 
 var config = JSON.parse(fs.readFileSync('config.json'));
+var retryDelay = config.retryDelay;
 
 var userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36';
 
@@ -65,17 +66,23 @@ function login() {
 								checkoutWithURL();
 							}
 						} else {
-							login();
-							console.log("Could not login successfully. Retrying.");
+							console.log("Could not login successfully. Retrying in " + retryDelay/1000 + " seconds.");
+							setTimeout(function () {			
+								login();
+							}, retryDelay)
 						}
 					} else {
-						login();
-						console.log("Error getting dashboard page. Retrying.");
+						console.log("Error getting dashboard page. Retrying in " + retryDelay/1000 + " seconds.");
+						setTimeout(function () {			
+							login();
+						}, retryDelay)
 					}
 				});
 			} else {
-				login();
-				console.log("Error obtaining login page. Retrying.");
+				console.log("Error obtaining login page. Retrying in " + retryDelay/1000 + " seconds.");
+				setTimeout(function () {			
+					login();
+				}, retryDelay)
 			}
 		});
 }
@@ -145,19 +152,26 @@ function checkoutWithURL(stoken) {
 												}
 											});
 										} else {
-											checkoutWithURL(stoken);
-											console.log("Unable to Checkout. Retrying.");
+											console.log("Unable to Checkout. Retrying in " + retryDelay/1000 + " seconds.");
+											setTimeout(function () {			
+												checkoutWithURL(stoken);
+											}, retryDelay)
 										}
 									});
 							}
 						} else {
 							checkoutWithURL(stoken);
-							console.log("Unable to retrieve cart page. Retrying.");
+							console.log("Unable to retrieve cart page. Retrying in " + retryDelay/1000 + " seconds.");
+							setTimeout(function () {			
+								checkoutWithURL(stoken);
+							}, retryDelay)
 						}
 					});
 			} else {
-				checkoutWithURL(stoken);
-				console.log("Unable to add item to cart. Retrying.");
+				console.log("Unable to add item to cart. Retrying in " + retryDelay/1000 + " seconds.");
+				setTimeout(function () {			
+					checkoutWithURL(stoken);
+				}, retryDelay)
 			}
 		});
 }
@@ -218,14 +232,18 @@ function standaloneCheckout(stoken) {
 									}
 								});
 							} else {
-								standaloneCheckout(stoken);
-								console.log("Unable to Checkout. Retrying.");
+								console.log("Unable to Checkout. Retrying in " + retryDelay/1000 + " seconds.");
+								setTimeout(function () {		
+									standaloneCheckout(stoken);
+								}, retryDelay)
 							}
 						});
 				}
 			} else {
-				standaloneCheckout(stoken);
-				console.log("Unable to retrieve cart page. Retrying.");
+				console.log("Unable to retrieve cart page. Retrying in " + retryDelay/1000 + " seconds.");
+				setTimeout(function () {		
+					standaloneCheckout(stoken);
+				}, retryDelay)
 			}
 		});
 }
